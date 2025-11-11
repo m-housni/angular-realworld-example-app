@@ -1,19 +1,111 @@
+<!-- 
+  Header Navigation Template
+  
+  This template defines the main navigation header for the application.
+  It demonstrates several key Angular concepts:
+  
+  Key Learning Concepts:
+  - Conditional rendering based on authentication state
+  - Angular Router integration for navigation
+  - Dynamic content binding with observables
+  - Custom directive usage for authentication checks
+  - Modern Angular template syntax (@if control flow)
+  
+  Template Structure:
+  1. Bootstrap navbar with responsive container
+  2. Brand/logo link to home page
+  3. Conditional navigation menus for authenticated/unauthenticated users
+  4. Dynamic user profile information display
+  
+  Authentication Flow:
+  - Unauthenticated users see: Home, Sign In, Sign Up
+  - Authenticated users see: Home, New Article, Settings, Profile
+-->
+
+<!-- 
+  Bootstrap Navbar Container
+  
+  Uses Bootstrap CSS classes for responsive navigation:
+  - navbar: Bootstrap navigation component
+  - navbar-light: Light color scheme variant
+  - container: Responsive container for proper spacing and alignment
+-->
 <nav class="navbar navbar-light">
   <div class="container">
+    <!-- 
+      Application Brand/Logo
+      
+      RouterLink Directive Usage:
+      - routerLink="/": Navigates to home page when clicked
+      - Replaces traditional <a href="/"> to prevent page reloads
+      - Maintains SPA (Single Page Application) behavior
+      - "conduit" is the application name/brand
+      
+      Learning Notes:
+      - RouterLink integrates with Angular's routing system
+      - Automatically handles base href and route resolution
+      - Provides better performance than traditional anchor tags
+      - Supports programmatic navigation and route parameters
+    -->
     <a class="navbar-brand" routerLink="/">conduit</a>
 
-    <!-- Show this for logged out users -->
+    <!-- 
+      Unauthenticated User Navigation
+      
+      Custom Directive Usage: *ifAuthenticated="false"
+      - Custom structural directive that conditionally renders content
+      - Shows this navigation only when user is NOT authenticated
+      - Alternative to using *ngIf with authentication checks
+      - Provides cleaner, more semantic template code
+      
+      Bootstrap Classes:
+      - nav navbar-nav: Bootstrap navigation list styling
+      - pull-xs-right: Aligns navigation to the right on extra-small screens
+      
+      Learning Notes:
+      - Structural directives use * prefix and manipulate DOM structure
+      - Custom directives encapsulate complex logic for reusability
+      - Conditional navigation improves user experience by showing relevant options
+    -->
     <ul *ifAuthenticated="false" class="nav navbar-nav pull-xs-right">
+      <!-- 
+        Home Navigation Item (Unauthenticated)
+        
+        Simple navigation link without active state highlighting.
+        Unauthenticated users don't need active state on home link
+        since they're likely just browsing.
+      -->
       <li class="nav-item">
         <a class="nav-link" routerLink="/"> Home </a>
       </li>
 
+      <!-- 
+        Sign In Navigation Item
+        
+        RouterLinkActive Directive:
+        - routerLinkActive="active": Adds 'active' CSS class when route is active
+        - Provides visual feedback showing current page location
+        - Automatically manages class addition/removal during navigation
+        - "active" class typically provides highlighting or different styling
+        
+        Learning Notes:
+        - RouterLinkActive works with any CSS class names
+        - Can specify multiple classes: routerLinkActive="class1 class2"
+        - Helps users understand their current location in the application
+        - Improves accessibility and user experience
+      -->
       <li class="nav-item">
         <a class="nav-link" routerLink="/login" routerLinkActive="active">
           Sign in
         </a>
       </li>
 
+      <!-- 
+        Sign Up Navigation Item
+        
+        Similar to Sign In but for user registration.
+        Uses same RouterLink and RouterLinkActive pattern for consistency.
+      -->
       <li class="nav-item">
         <a class="nav-link" routerLink="/register" routerLinkActive="active">
           Sign up
@@ -21,8 +113,35 @@
       </li>
     </ul>
 
-    <!-- Show this for logged in users -->
+    <!-- 
+      Authenticated User Navigation
+      
+      Custom Directive Usage: *ifAuthenticated="true"
+      - Shows this navigation only when user IS authenticated
+      - Provides different navigation options for logged-in users
+      - Demonstrates conditional rendering based on application state
+      
+      User Experience:
+      - Authenticated users get access to content creation (New Article)
+      - Settings and profile management become available
+      - Home link gets active state highlighting for better navigation awareness
+    -->
     <ul *ifAuthenticated="true" class="nav navbar-nav pull-xs-right">
+      <!-- 
+        Home Navigation Item (Authenticated)
+        
+        RouterLinkActiveOptions:
+        - [routerLinkActiveOptions]="{ exact: true }": Only highlights when exactly on home route
+        - Property binding syntax with square brackets
+        - Prevents highlighting on child routes like /home/something
+        - Ensures precise navigation feedback
+        
+        Learning Notes:
+        - Property binding uses [property]="expression" syntax
+        - exact: true prevents partial route matching
+        - Important for root routes that might match multiple paths
+        - Provides more precise user navigation feedback
+      -->
       <li class="nav-item">
         <a
           class="nav-link"
@@ -34,30 +153,123 @@
         </a>
       </li>
 
+      <!-- 
+        New Article Navigation Item
+        
+        Icon Integration:
+        - <i class="ion-compose"></i>: Uses Ionic icons for visual enhancement
+        - &nbsp;: Non-breaking space for proper spacing between icon and text
+        - Combines visual and textual navigation cues
+        
+        Learning Notes:
+        - Icons improve visual hierarchy and user recognition
+        - Ionic icons provide consistent iconography across the application
+        - &nbsp; ensures proper spacing that won't break across lines
+        - Visual cues help users quickly identify functionality
+      -->
       <li class="nav-item">
         <a class="nav-link" routerLink="/editor" routerLinkActive="active">
           <i class="ion-compose"></i>&nbsp;New Article
         </a>
       </li>
 
+      <!-- 
+        Settings Navigation Item
+        
+        Similar pattern to New Article with icon and text combination.
+        Uses ion-gear-a icon to represent settings/configuration.
+      -->
       <li class="nav-item">
         <a class="nav-link" routerLink="/settings" routerLinkActive="active">
           <i class="ion-gear-a"></i>&nbsp;Settings
         </a>
       </li>
 
+      <!-- 
+        User Profile Navigation Item
+        
+        Modern Angular Control Flow: @if (condition; as alias)
+        - New Angular 17+ syntax replacing *ngIf
+        - More readable and performant than structural directives
+        - Creates local template variable 'currentUser' for use within block
+        - Automatically handles observable unwrapping via AsyncPipe
+        
+        Observable Pattern:
+        - currentUser$ | async: Subscribes to user observable and unwraps value
+        - AsyncPipe automatically manages subscription lifecycle
+        - Prevents memory leaks by auto-unsubscribing when component destroys
+        
+        Learning Notes:
+        - @if is Angular's modern alternative to *ngIf
+        - 'as currentUser' creates a typed local variable
+        - AsyncPipe is essential for reactive programming patterns
+        - Observables enable real-time UI updates when data changes
+      -->
       @if (currentUser$ | async; as currentUser) {
         <li class="nav-item">
+          <!-- 
+            Dynamic Profile Link
+            
+            Property Binding Examples:
+            - [routerLink]="['/profile', currentUser.username]": Array syntax for route with parameters
+            - [src]="currentUser.image": Dynamic image source binding
+            
+            Route Parameters:
+            - '/profile' is the base route
+            - currentUser.username becomes a route parameter
+            - Results in URLs like /profile/john_doe
+            - Angular Router automatically handles parameter encoding
+            
+            Learning Notes:
+            - Array syntax allows for dynamic route parameters
+            - Property binding updates automatically when data changes
+            - Route parameters enable dynamic, user-specific URLs
+            - Parameterized routes support RESTful URL patterns
+          -->
           <a
             class="nav-link"
             [routerLink]="['/profile', currentUser.username]"
             routerLinkActive="active"
           >
+            <!-- 
+              Conditional User Avatar
+              
+              Structural Directive: *ngIf="currentUser.image"
+              - Only renders image element if user has a profile image
+              - Prevents broken image displays for users without avatars
+              - Graceful degradation when image data is unavailable
+              
+              CSS Classes:
+              - user-pic: Custom styling for user profile images
+              - Likely includes border-radius, sizing, and positioning
+              
+              Learning Notes:
+              - Conditional rendering prevents UI errors with missing data
+              - *ngIf completely removes elements from DOM when condition is false
+              - Better UX than showing broken image placeholders
+              - Allows for fallback content when primary content unavailable
+            -->
             <img
               [src]="currentUser.image"
               *ngIf="currentUser.image"
               class="user-pic"
             />
+
+            <!-- 
+              Dynamic Username Display
+              
+              Interpolation: {{ currentUser.username }}
+              - Displays the user's username as text content
+              - Automatically updates when user data changes
+              - Escapes HTML to prevent XSS attacks
+              - Provides personalized navigation experience
+              
+              Learning Notes:
+              - Interpolation is Angular's simplest data binding mechanism
+              - Double curly braces {{ }} render data as text
+              - Automatically handles null/undefined values gracefully
+              - Creates personalized, dynamic user interfaces
+            -->
             {{ currentUser.username }}
           </a>
         </li>
